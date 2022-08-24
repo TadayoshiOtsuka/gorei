@@ -10,7 +10,7 @@ go install github.com/TadayoshiOtsuka/gorei@latest
 
 # Usage
 
-Go to the root of the project you want to replace.
+Go to the root of the project whose package name you want to replace.
 
 ```
 gorei <new package name>
