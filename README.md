@@ -1,6 +1,6 @@
 # gorei
 
-batch replace package name cmd for golang, go.mod
+batch replace module name cmd for go.mod
 
 # Install
 
@@ -10,8 +10,8 @@ go install github.com/TadayoshiOtsuka/gorei@latest
 
 # Usage
 
-Go to the root of the project whose package name you want to replace.
+Go to the root of the project whose module name you want to replace.
 
 ```
-gorei <new package name>
+gorei <new module name>
 ```

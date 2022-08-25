@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	ErrNotEnoughArgs    = errors.New("not enough arguments e.g.) 'gorei <new package name>'")
+	ErrNotEnoughArgs    = errors.New("not enough arguments e.g.) 'gorei <new module name>'")
 	ErrModuleCanNotRead = errors.New("can not read module definition in 'go.mod'")
 	ErrInterrupt        = errors.New("interrupted")
 )
@@ -22,12 +22,12 @@ func Exec(args []string) error {
 	if len(args) == 0 {
 		return ErrNotEnoughArgs
 	}
-	newPkg := args[0]
-	oldPkg, err := readOldPackageName()
+	new := args[0]
+	old, err := readOldModuleName()
 	if err != nil {
 		return err
 	}
-	res, err := confirm(oldPkg, newPkg)
+	res, err := confirm(old, new)
 	if err != nil {
 		return err
 	}
@@ -39,7 +39,7 @@ func Exec(args []string) error {
 	if err != nil {
 		return err
 	}
-	if err := scan(cd, oldPkg, newPkg); err != nil {
+	if err := scan(cd, old, new); err != nil {
 		return err
 	}
 
@@ -47,7 +47,7 @@ func Exec(args []string) error {
 	return nil
 }
 
-func readOldPackageName() (string, error) {
+func readOldModuleName() (string, error) {
 	fp, err := os.Open("./go.mod")
 	if err != nil {
 		return "", err
@@ -80,7 +80,7 @@ func confirm(old, new string) (bool, error) {
 	return true, nil
 }
 
-func scan(src, oldPkg, newPkg string) error {
+func scan(src, old, new string) error {
 	fs, err := os.ReadDir(src)
 	if err != nil {
 		return err
@@ -91,16 +91,16 @@ func scan(src, oldPkg, newPkg string) error {
 			continue
 		}
 		if f.IsDir() {
-			scan(filepath.Join(src, f.Name()), oldPkg, newPkg)
+			scan(filepath.Join(src, f.Name()), old, new)
 		} else {
-			genFile(src, src, f.Name(), oldPkg, newPkg)
+			genFile(src, src, f.Name(), old, new)
 		}
 	}
 
 	return nil
 }
 
-func genFile(src, dst, name, oldPkg, newPkg string) error {
+func genFile(src, dst, name, old, new string) error {
 	fs, fd := filepath.Join(src, name), filepath.Join(dst, name)
 	file, err := os.ReadFile(fs)
 	if err != nil {
@@ -113,7 +113,7 @@ func genFile(src, dst, name, oldPkg, newPkg string) error {
 	}
 	defer f.Close()
 
-	file = replacePackageName(file, oldPkg, newPkg)
+	file = replacePackageName(file, old, new)
 	if _, err = f.Write(file); err != nil {
 		return err
 	}
